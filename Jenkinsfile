@@ -43,6 +43,13 @@ pipeline {
 
         stage('Push to DockerHub') {
             steps {
+                withCredentials([usernamePassword(credentialsId: 'Dockerhub-key', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                    sh 'docker tag myapp:${BUILD_NUMBER} $DOCKER_USER/myapp:${BUILD_NUMBER}'
+                    sh 'docker push $DOCKER_USER/myapp:${BUILD_NUMBER}'
+             }
+        }
+            steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                 sh 'docker tag myapp:${BUILD_NUMBER} mydockerhubuser/myapp:${BUILD_NUMBER}'
                 sh 'docker push mydockerhubuser/myapp:${BUILD_NUMBER}'
