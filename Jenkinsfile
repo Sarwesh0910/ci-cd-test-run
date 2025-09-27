@@ -10,8 +10,8 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                sh 'pip install -r requirements.txt'
-                sh 'pytest'
+                bat 'pip install -r requirements.txt'
+                bat 'pytest'
             }
         }
 
