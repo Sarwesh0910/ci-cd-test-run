@@ -18,7 +18,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarScanner') {
-                    sh 'sonar-scanner'
+                    bat 'sonar-scanner'
                 }
             }
         }
@@ -33,25 +33,23 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t myapp:${BUILD_NUMBER} .'
+                bat 'docker build -t myapp:${BUILD_NUMBER} .'
             }
         }
 
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Dockerhub-key', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker tag myapp:${BUILD_NUMBER} $DOCKER_USER/myapp:${BUILD_NUMBER}'
-                    sh 'docker push $DOCKER_USER/myapp:${BUILD_NUMBER}'
+                    bat 'echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin'
+                    bat 'docker tag myapp:${BUILD_NUMBER} %DOCKER_USER%/myapp:${BUILD_NUMBER}'
+                    bat 'docker push %DOCKER_USER%/myapp:${BUILD_NUMBER}'
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'Dockerhub-key', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh 'docker run -d -p 5000:5000 $DOCKER_USER/myapp:${BUILD_NUMBER}'
-                }
+                bat 'docker run -d -p 5000:5000 %DOCKER_USER%/myapp:${BUILD_NUMBER}'
             }
         }
     }
