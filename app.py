@@ -1,4 +1,5 @@
 from flask import Flask
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -9,5 +10,6 @@ def hello():
 def health():
     return "OK"
 
+# Only run the server if this file is executed directly
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
