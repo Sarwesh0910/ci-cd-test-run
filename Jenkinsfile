@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds-id')
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -47,12 +43,15 @@ pipeline {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
                     sh 'docker tag myapp:${BUILD_NUMBER} $DOCKER_USER/myapp:${BUILD_NUMBER}'
                     sh 'docker push $DOCKER_USER/myapp:${BUILD_NUMBER}'
-             }
+                }
+            }
         }
-            
+
         stage('Deploy') {
             steps {
-                sh 'docker run -d -p 5000:5000 mydockerhubuser/myapp:${BUILD_NUMBER}'
+                withCredentials([usernamePassword(credentialsId: 'Dockerhub-key', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh 'docker run -d -p 5000:5000 $DOCKER_USER/myapp:${BUILD_NUMBER}'
+                }
             }
         }
     }
